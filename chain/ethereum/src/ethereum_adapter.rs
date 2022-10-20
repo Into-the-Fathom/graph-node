@@ -425,9 +425,9 @@ impl EthereumAdapter {
     ) -> impl Future<Item = Bytes, Error = EthereumContractCallError> + Send {
         let web3 = self.web3.clone();
 
-        // Ganache does not support calls by block hash.
+        // XDC and Ganache does not support calls by block hash.
         // See https://github.com/trufflesuite/ganache-cli/issues/973
-        let block_id = if !self.supports_eip_1898 {
+        let block_id = if self.supports_eip_1898 {
             BlockId::Number(block_ptr.number.into())
         } else {
             BlockId::Hash(block_ptr.hash_as_h256())
@@ -1419,8 +1419,28 @@ pub(crate) async fn blocks_with_triggers(
         triggers.with_context(|| format!("Failed to obtain triggers for block {}", to))?;
     let to_hash = to_hash.with_context(|| format!("Failed to infer hash for block {}", to))?;
 
+    // convert block numbers to hashes
+    let mut hashes: Vec<H256> = vec![];
+    let block_numbers: Vec<BlockNumber> = triggers.iter().map(EthereumTrigger::block_number).collect();
+    for number in block_numbers {
+        let block_hash = adapter.block_hash_by_block_number(&logger, number)
+        .compat()
+        .await;
+        
+        match block_hash {
+            Ok(Some(hash)) => hashes.push(hash),
+            Ok(None) => bail!("Could not find block {} on chain", number),
+            Err(error) => bail!("Failed to get block {} hash: {}", number, error),
+        }
+    }
+
     let mut block_hashes: HashSet<H256> =
-        triggers.iter().map(EthereumTrigger::block_hash).collect();
+        triggers.iter().map(EthereumTrigger::block_hash_without_log).filter(|hash| !hash.is_zero()).collect();
+
+    for hash in hashes {
+        block_hashes.insert(hash);
+    }    
+
     let mut triggers_by_block: HashMap<BlockNumber, Vec<EthereumTrigger>> =
         triggers.into_iter().fold(HashMap::new(), |mut map, t| {
             map.entry(t.block_number()).or_default().push(t);
@@ -1850,27 +1870,31 @@ fn resolve_transaction_receipt(
             //
             // Also as a sanity check against provider nonsense, check that the receipt transaction
             // hash and the requested transaction hash match.
-            if receipt.block_hash != Some(block_hash)
-                || transaction_hash != receipt.transaction_hash
-            {
-                info!(
-                    logger, "receipt block mismatch";
-                    "receipt_block_hash" =>
-                    receipt.block_hash.unwrap_or_default().to_string(),
-                    "block_hash" =>
-                        block_hash.to_string(),
-                    "tx_hash" => transaction_hash.to_string(),
-                    "receipt_tx_hash" => receipt.transaction_hash.to_string(),
-                );
 
-                // If the receipt came from a different block, then the Ethereum node no longer
-                // considers this block to be in the main chain. Nothing we can do from here except
-                // give up trying to ingest this block. There is no way to get the transaction
-                // receipt from this block.
-                Err(IngestorError::BlockUnavailable(block_hash.clone()))
-            } else {
+            // The following code below is commented out due to a current xdc bug where the rpc node does not return the correct block hash with certain calls
+            // please see https://www.xdc.dev/xu_zhaolin_fcf881856ae0b5/issue-30lo for more information about this issue
+
+            // if receipt.block_hash != Some(block_hash)
+            //     || transaction_hash != receipt.transaction_hash
+            // {
+            //     info!(
+            //         logger, "receipt block mismatch";
+            //         "receipt_block_hash" =>
+            //         receipt.block_hash.unwrap_or_default().to_string(),
+            //         "block_hash" =>
+            //             block_hash.to_string(),
+            //         "tx_hash" => transaction_hash.to_string(),
+            //         "receipt_tx_hash" => receipt.transaction_hash.to_string(),
+            //     );
+
+            //     // If the receipt came from a different block, then the Ethereum node no longer
+            //     // considers this block to be in the main chain. Nothing we can do from here except
+            //     // give up trying to ingest this block. There is no way to get the transaction
+            //     // receipt from this block.
+            //     Err(IngestorError::BlockUnavailable(block_hash.clone()))
+            // } else {
                 Ok(receipt)
-            }
+            // }
         }
         None => {
             // No receipt was returned.

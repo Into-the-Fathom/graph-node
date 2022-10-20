@@ -24,3 +24,6 @@ incremental = false
 
 [profile.dev]
 incremental = false
+
+[patch.crates-io]
+impl-serde = { git = "https://github.com/ztshort/parity-common", branch = "xdc-z" }

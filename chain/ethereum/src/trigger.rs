@@ -266,6 +266,14 @@ impl EthereumTrigger {
             EthereumTrigger::Log(log, _) => log.block_hash.unwrap(),
         }
     }
+
+    pub fn block_hash_without_log(&self) -> H256 {
+        match self {
+            EthereumTrigger::Block(block_ptr, _) => block_ptr.hash_as_h256(),
+            EthereumTrigger::Call(call) => call.block_hash,
+            EthereumTrigger::Log(_, _) => H256::zero(),
+        }
+    }
 }
 
 impl Ord for EthereumTrigger {
