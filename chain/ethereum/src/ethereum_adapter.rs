@@ -427,7 +427,7 @@ impl EthereumAdapter {
 
         // XDC and Ganache does not support calls by block hash.
         // See https://github.com/trufflesuite/ganache-cli/issues/973
-        let block_id = if self.supports_eip_1898 {
+        let block_id = if !self.supports_eip_1898 {
             BlockId::Number(block_ptr.number.into())
         } else {
             BlockId::Hash(block_ptr.hash_as_h256())
