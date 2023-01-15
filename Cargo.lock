@@ -2311,7 +2311,6 @@ dependencies = [
 [[package]]
 name = "impl-serde"
 version = "0.3.2"
-source = "git+https://github.com/ztshort/parity-common?branch=xdc-z#1148ad02186955f710e12f7f30d46f8477f0ca3f"
 dependencies = [
  "serde",
 ]

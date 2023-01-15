@@ -26,4 +26,4 @@ incremental = false
 incremental = false
 
 [patch.crates-io]
-impl-serde = { git = "https://github.com/ztshort/parity-common", branch = "xdc-z" }
+impl-serde = { path = "./parity-common/primitive-types/impls/serde", version = "0.3.2", default-features = false, optional = true }
