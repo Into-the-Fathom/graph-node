@@ -21,6 +21,7 @@ services:
       ipfs: 'ipfs:5001'
       ethereum: 'mainnet:no_eip1898,archive:https://arpc.apothem.network/'
       GRAPH_LOG: info
+      EXPERIMENTAL_SUBGRAPH_VERSION_SWITCHING_MODE: synced
   ipfs:
     image: ipfs/go-ipfs:v0.10.0
     ports:
