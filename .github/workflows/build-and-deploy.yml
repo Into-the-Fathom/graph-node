@@ -22,6 +22,7 @@ jobs:
     name: Build & Push To Dockerhub
 
     runs-on: ubuntu-latest
+
     steps:
 
     - name: Checkout code
@@ -31,17 +32,17 @@ jobs:
       working-directory: docker
       run: ./build.sh 
 
+    - name: View images
+      run: docker images
+
     - name: Log in to Docker Hub
       uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
       with:
         username: ${{ secrets.DOCKER_USER }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-    - name: View images
-      run: docker images
-
-    - name: Add docker tag 
-      run: docker tag localhost/graph-node intothefathom/graph-node:latest
+    # - name: Add docker tag 
+    #   run: docker tag graph-node intothefathom/graph-node:latest
 
     - name: Push Graph Node Image to DockerHub
       run: docker push intothefathom/graph-node:latest
