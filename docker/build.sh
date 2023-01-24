@@ -21,6 +21,7 @@ do
             --build-arg "REPO_NAME=$REPO_NAME" \
             --build-arg "BRANCH_NAME=$BRANCH_NAME" \
             --build-arg "TAG_NAME=$TAG_NAME" \
-            -t intothefathom/$stage \
+            # -t intothefathom/$stage \
+            -t $stage \
             -f docker/Dockerfile .
 done
