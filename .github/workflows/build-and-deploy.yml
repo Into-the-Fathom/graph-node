@@ -41,7 +41,7 @@ jobs:
       run: docker images
 
     - name: Add docker tag 
-      run: docker tag graph-node intothefathom/graph-node:latest
+      run: docker tag localhost/graph-node intothefathom/graph-node:latest
 
     - name: Push Graph Node Image to DockerHub
       run: docker push intothefathom/graph-node:latest
