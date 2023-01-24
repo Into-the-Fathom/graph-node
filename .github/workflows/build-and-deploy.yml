@@ -37,6 +37,9 @@ jobs:
         username: ${{ secrets.DOCKER_USER }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+    - name: View images
+      run: docker images
+
     - name: Add docker tag 
       run: docker tag graph-node intothefathom/graph-node:latest
 
