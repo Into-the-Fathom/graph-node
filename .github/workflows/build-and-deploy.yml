@@ -70,6 +70,7 @@ jobs:
            touch test.txt
 
 
+
           #  rm docker-compose.yml
           #  curl https://raw.githubusercontent.com/Into-the-Fathom/graph-node/dev/docker/docker-compose.yml >> docker-compose.yml && docker stack deploy -c docker-compose.yml graph-node --resolve-image always
            
