@@ -25,12 +25,6 @@ services:
     entrypoint: "/bin/sh -c 'postgres_pass=`cat /run/secrets/postgres_password` start'" 
     secrets:
       - postgres_password
-  ipfs:
-    image: ipfs/go-ipfs:v0.10.0
-    ports:
-      - '5001:5001'
-    volumes:
-      - ./data/ipfs:/data/ipfs
 secrets:
   postgres_password:
     external: true
