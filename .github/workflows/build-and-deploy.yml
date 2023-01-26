@@ -69,5 +69,5 @@ jobs:
         script: |
           
           #  rm docker-compose.yml
-           curl https://raw.githubusercontent.com/Into-the-Fathom/graph-node/github-action-do/docker/docker-compose.yml >> docker-compose.yml && docker stack deploy -c docker-compose.yml graph-node --resolve-image always
+           curl https://raw.githubusercontent.com/Into-the-Fathom/graph-node/github-action-do/docker/docker-compose.yml >> docker-compose.yml && docker stack deploy -c docker-compose.yml fathom-graph-node --resolve-image always
            
