@@ -8,8 +8,6 @@ services:
       - '127.0.0.1:8020:8020'
       - '8030:8030'
       - '8040:8040'
-    depends_on:
-      - ipfs
     extra_hosts:
       - host.docker.internal:host-gateway
     restart: always
