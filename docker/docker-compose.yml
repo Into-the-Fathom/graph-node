@@ -8,6 +8,8 @@ services:
       - '127.0.0.1:8020:8020'
       - '8030:8030'
       - '8040:8040'
+    depends_on:
+      - ipfs
     extra_hosts:
       - host.docker.internal:host-gateway
     restart: always
@@ -16,7 +18,7 @@ services:
       postgres_user: doadmin
       postgres_port: 25060
       postgres_db: defaultdb
-      ipfs: 'ipfs:5001'
+      ipfs: '5001:5001'
       ethereum: 'mainnet:no_eip1898,archive:https://arpc.apothem.network/'
       GRAPH_LOG: info
       EXPERIMENTAL_SUBGRAPH_VERSION_SWITCHING_MODE: synced
