@@ -170,10 +170,10 @@ impl LinkResolverTrait for LinkResolver {
         }
         trace!(logger, "IPFS cache miss"; "hash" => &path);
 
-        let (size, client) = select_fastest_client_with_stat(
+        let (_size, client) = select_fastest_client_with_stat(
             self.clients.cheap_clone(),
             logger.cheap_clone(),
-            StatApi::Files,
+            StatApi::Block,
             path.clone(),
             self.timeout,
             self.retry,
@@ -182,7 +182,6 @@ impl LinkResolverTrait for LinkResolver {
 
         let max_cache_file_size = self.env_vars.mappings.max_ipfs_cache_file_size;
         let max_file_size = self.env_vars.mappings.max_ipfs_file_bytes;
-        restrict_file_size(&path, size, max_file_size)?;
 
         let req_path = path.clone();
         let timeout = self.timeout;
@@ -215,7 +214,7 @@ impl LinkResolverTrait for LinkResolver {
 
     async fn get_block(&self, logger: &Logger, link: &Link) -> Result<Vec<u8>, Error> {
         trace!(logger, "IPFS block get"; "hash" => &link.link);
-        let (size, client) = select_fastest_client_with_stat(
+        let (_size, client) = select_fastest_client_with_stat(
             self.clients.cheap_clone(),
             logger.cheap_clone(),
             StatApi::Block,
@@ -224,9 +223,6 @@ impl LinkResolverTrait for LinkResolver {
             self.retry,
         )
         .await?;
-
-        let max_file_size = self.env_vars.mappings.max_ipfs_file_bytes;
-        restrict_file_size(&link.link, size, max_file_size)?;
 
         let link = link.link.clone();
         let data = retry_policy(self.retry, "ipfs.getBlock", &logger)
@@ -247,18 +243,15 @@ impl LinkResolverTrait for LinkResolver {
         // Discard the `/ipfs/` prefix (if present) to get the hash.
         let path = link.link.trim_start_matches("/ipfs/");
 
-        let (size, client) = select_fastest_client_with_stat(
+        let (_size, client) = select_fastest_client_with_stat(
             self.clients.cheap_clone(),
             logger.cheap_clone(),
-            StatApi::Files,
+            StatApi::Block,
             path.to_string(),
             self.timeout,
             self.retry,
         )
         .await?;
-
-        let max_file_size = self.env_vars.mappings.max_ipfs_map_file_size;
-        restrict_file_size(path, size, max_file_size)?;
 
         let mut stream = client.cat(path, None).await?.fuse().boxed().compat();
 
